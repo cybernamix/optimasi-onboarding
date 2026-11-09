@@ -52,9 +52,10 @@ GPL-2.0-or-later. The full licence text ships inside the plugin as
 
 ## Support
 
-Optimasi — <https://optimasi.io>. The plugin is a lead-generation tool for
-Optimasi's own content service; the review itself is free and requires no
-account.
+Optimasi — <https://optimasi.io>. The plugin is a **content audit** of your own
+product pages: it reads what you have published and reports what a shopper would
+find missing, so you can judge and improve the content yourself. It is free and
+needs no account.
 
 ## Releases
 
