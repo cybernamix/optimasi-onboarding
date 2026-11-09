@@ -8,7 +8,7 @@
  *                     Sales-Ready Inspection Report, and a video showing how
  *                     Optimasi works. You can also ask for a one-on-one from the
  *                     report panel. Nothing is written automatically.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Optimasi
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Prevent direct file access.
 }
 
-define( 'OPTIMASI_ONBOARDING_VERSION', '1.0.0' );
+define( 'OPTIMASI_ONBOARDING_VERSION', '1.0.1' );
 define( 'OPTIMASI_ONBOARDING_DIR', plugin_dir_path( __FILE__ ) );
 
 require_once OPTIMASI_ONBOARDING_DIR . 'includes/class-onboarding.php';

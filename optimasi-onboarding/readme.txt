@@ -4,7 +4,7 @@ Tags: woocommerce, audit, seo, content, ecommerce
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,8 +96,10 @@ No product description text is sent in this step. From then on the report is
 fetched by reference: the plugin sends the report token it was given, not the
 data again.
 
-The "Email me this report" card sends the same report reference plus the email
-address you type, in order to send you the report.
+The "Email the full report" card sends the review snapshot, the email address you
+type and, when this review was already captured, its request reference — in order
+to email you the full report. You are sent a confirmation link first, and the
+download is only sent once you click it.
 
 The "Request a one-on-one" form sends only what you entered: the contact channel
 you selected and, if you provided them, a phone number, an email address and your
@@ -167,6 +169,43 @@ description sample and any contact details we hold for your store.
 
 == Changelog ==
 
+= 1.0.1 =
+* **"Print / Save as PDF" is gone, because it never worked.** The report is displayed
+  in a sandboxed frame that cannot run script, and `window.print()` is refused there
+  without an error — so the button did nothing at all, and showed nothing to explain
+  it. The report prints normally from the browser's own Print menu, so the one action
+  is now **Open or print in a new tab**, which is the primary button. (The 1.0.0 notes
+  described the two buttons as showing the same document; that was wrong.)
+
+* **A report from an earlier review is now offered with its date, instead of being
+  presented as if you had just finished.** On a later visit, a stored report made the
+  page render the whole document on load — findings included — with step 3 marked
+  *Ready*, while steps 1 and 2 had not run. The document was real; what it implied was
+  not. Step 3 now opens with *"You have a report from your review on <date>"* and a
+  **Show that report** button, its action buttons stay disabled, and nothing is
+  fetched until you ask for it.
+
+* **The email offer now sits under the report, and describes what it actually sends.**
+  It was labelled as though it were another copy of the four-page summary already on
+  screen. What arrives by email is the **full** review: an executive summary you can
+  forward to whoever signs off on content, the consultant's read on what is working and
+  where the opportunity is, the brand-voice and duplicate-copy findings, and the
+  recommended plan, set out in full rather than summarised. The card now reads *Email
+  the full report*, and it says that a confirmation link arrives first.
+
+* **The email card stays hidden when there is no review to send.** The full report is
+  built from the review this visit sent, so a report restored from an earlier visit
+  shows the document — and can be printed from its tab — without offering an email that
+  would arrive empty. Run steps 1 and 2 again to have the full report emailed.
+
+* **Uninstalling now removes the plugin's data.** Deleting the plugin left every option
+  behind in the database, which is also why reinstalling it showed a report from a
+  previous install. Deletion now removes the seven settings this plugin owns, and only
+  those: the connection keys it shares with the Optimasi Content Manager are kept, so
+  removing this plugin cannot silently disconnect a store that is still connected
+  through the other one. Deactivating still keeps everything — only deletion clears it.
+  The plugin writes no files of its own.
+
 = 1.0.0 =
 * First public release.
 
@@ -199,3 +238,9 @@ description sample and any contact details we hold for your store.
 
 * **Read-only, and small.** Six files, no database tables, no custom post types,
   no build step. Uninstalling removes the plugin's own settings and nothing else.
+
+  **Correction, added when 1.0.1 was cut: the sentence above was wrong when this
+  version shipped.** 1.0.0 had no uninstall routine at all, so deleting it left its
+  settings in the database; 1.0.1 adds one, and the claim is true from that version
+  onward. The correction is appended rather than edited into the original line, so
+  the record of what 1.0.0 said stays visible beside what was actually true.

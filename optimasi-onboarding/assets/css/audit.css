@@ -968,6 +968,12 @@
    46px narrower than its neighbours. */
 .optimasi-report-extra { max-width: calc(860px + 2 * 22px + 2 * 1px); }
 .optimasi-report-extra.is-hidden { display: none !important; }
+/* It now sits INSIDE step 3 rather than between two step cards, so the outer
+   width above no longer applies — the step's own width governs, and the card
+   aligns with the step's other blocks instead of being width-matched to a
+   neighbour it no longer has. */
+.optimasi-step .optimasi-report-extra { max-width: none; }
+.optimasi-step .optimasi-email-card { margin: 18px 0 0 0; }
 .optimasi-email-card {
     background: #ffffff;
     border: 1px solid #ccd0d4;
@@ -1045,6 +1051,21 @@
    fits inside an 860px step without a sideways scroll. */
 .optimasi-report-status { color: #50575e; font-weight: 600; }
 .optimasi-report-status:not(:empty) { margin: 14px 0 0 48px; }  /* aligns with .optimasi-step-actions */
+
+/* Provenance for a report from an earlier review. Lives inside step 3 but is
+   NOT the step's result: the buttons stay disabled until the document is opened
+   on request, so nothing here can be mistaken for "this run finished". */
+.optimasi-report-previous {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 14px 0 0 48px;
+    color: #50575e;
+    font-size: 14px;
+}
+.optimasi-report-previous.is-hidden { display: none !important; }
+.optimasi-report-previous .button { margin: 0; }
 .optimasi-report-frame {
     display: block;
     /* Bleed to the step's edges (-22px = the step's side padding) so the A4 page

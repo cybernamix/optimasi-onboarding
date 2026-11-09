@@ -237,8 +237,11 @@ jQuery(document).ready(function ($) {
     const $reportStep = $('#optimasi-step-3');
     const $reportFrame = $('#optimasi-report-frame');
     const $reportStatus = $('#optimasi-report-status');
-    const $reportPrint = $('#optimasi-report-print');
     const $reportOpen = $('#optimasi-report-open');
+    // Provenance for a stored report from an earlier review (see showPreviousReport).
+    const $previousReport = $('#optimasi-report-previous');
+    const $previousReportText = $('#optimasi-report-previous-text');
+    const $previousReportShow = $('#optimasi-report-previous-show');
     // The offer panel sits with the report (and is revealed by it), so it is
     // resolved here rather than down in the contact-form block.
     const $help = $('#optimasi-help');
@@ -251,11 +254,20 @@ jQuery(document).ready(function ($) {
     // capture returns a token, and again on page load when a previous run's
     // token is stored server-side.
     function loadReportDocument() {
+        // The visitor asked for a report, so the notice about an older one has done its
+        // job. Hiding it here is what keeps a fresh run from showing a stale offer.
+        hidePreviousReport();
         // The email capture and the offer both sit with the report they are
         // about (between steps 3 and 4), so they are revealed here rather than
         // after the example pages — and the email card must appear even when the
         // report fails, because the failure message points the visitor at it.
-        $('#optimasi-report-extra').removeClass('is-hidden');
+        // The email offer is the route to the FULL report, which the server builds
+        // from the review payload this session sent. On a restored "previous report"
+        // there is no payload to send, so the card stays hidden rather than inviting a
+        // request that would email an empty report.
+        if (snapshotSent) {
+            $('#optimasi-report-extra').removeClass('is-hidden');
+        }
         $help.removeClass('is-hidden');
         if (!$reportStep.length) { return; }
         // The report is the deliverable, so its step opens before the example
@@ -268,14 +280,13 @@ jQuery(document).ready(function ($) {
                 const html = (data && data.html) ? String(data.html) : '';
                 if (!html) {
                     setStepState(3, 'Unavailable');
-                    reportDocStatus('Your report could not be loaded right now — use “Email me this report” and we’ll send it to you.');
+                    reportDocStatus('Your report could not be loaded right now — please try again in a moment.');
                     return;
                 }
                 reportDocHtml = html;
                 // srcdoc keeps the report same-origin (the content is generated
                 // server-side and fully escaped) so Print works directly.
                 $reportFrame.attr('srcdoc', html).css('display', 'block');
-                $reportPrint.prop('disabled', false);
                 $reportOpen.prop('disabled', false);
                 $reportStep.addClass('is-done');
                 setStepState(3, 'Ready');
@@ -287,17 +298,38 @@ jQuery(document).ready(function ($) {
             });
     }
 
-    $reportPrint.on('click', function (e) {
+    /**
+     * Offer the report from an EARLIER review, with its date, without pretending it is
+     * this run's result.
+     *
+     * This is the whole difference from what the page used to do: it rendered the stored
+     * report outright on page load, so step 3 appeared complete — with the report's own
+     * "consultant's read" findings — while steps 1 and 2 had not run. The document was
+     * real; the implication was not. Here the step opens so the offer is visible, but its
+     * state says "Previous report", its action buttons stay disabled, and nothing is
+     * fetched until the visitor presses the button.
+     */
+    function showPreviousReport(report) {
+        if (!$previousReport.length) { return; }
+        const label = (report && report.label) ? String(report.label) : '';
+        const copy = label
+            ? String(report.with_date || '').replace('%s', label)
+            : String(report.without_date || '');
+        if (!copy) { return; }
+        $previousReportText.text(copy);
+        $previousReport.removeClass('is-hidden');
+        $reportStep.removeClass('is-locked');
+        setStepState(3, 'Previous report');
+    }
+
+    function hidePreviousReport() {
+        $previousReport.addClass('is-hidden');
+    }
+
+    $previousReportShow.on('click', function (e) {
         e.preventDefault();
-        const frame = $reportFrame.get(0);
-        if (!frame || !reportDocHtml) { return; }
-        try {
-            frame.contentWindow.focus();
-            frame.contentWindow.print();
-        } catch (err) {
-            // Cross-origin / blocked: fall back to a blob tab the user can print.
-            openReportInNewTab();
-        }
+        $previousReportShow.prop('disabled', true);
+        loadReportDocument();
     });
 
     $reportOpen.on('click', function (e) {
@@ -315,7 +347,7 @@ jQuery(document).ready(function ($) {
             ? String(optimasiAudit.report_url)
             : '';
         if (!url) {
-            reportDocStatus('The report could not be opened — use Print / Save as PDF instead.');
+            reportDocStatus('The report could not be opened right now — please try again in a moment.');
             return;
         }
         const win = window.open(url, '_blank', 'noopener');
@@ -324,9 +356,12 @@ jQuery(document).ready(function ($) {
         }
     }
 
-    // A report from a previous run is still available after a page reload.
-    if (optimasiAudit && optimasiAudit.has_report) {
-        loadReportDocument();
+    // A report from a previous run is still available after a page reload — but it is
+    // NOT this run's report, so it is OFFERED with its date rather than rendered as if
+    // the visitor had just finished. Rendering it here unconditionally is what made
+    // step 3 look complete before steps 1 and 2 had run.
+    if (optimasiAudit && optimasiAudit.report && optimasiAudit.report.has) {
+        showPreviousReport(optimasiAudit.report);
     }
 
     // ------------------------------------------------------------------

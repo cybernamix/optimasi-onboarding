@@ -11,7 +11,8 @@
  *                     weighted completeness score and AI-readiness checks.
  *   Step 3 (server) – renders the 4-page Sales-Ready Inspection Report from the
  *                     snapshot Step 2 already sent — the deliverable the store
- *                     keeps (print / save as PDF / open in a new tab).
+ *                     keeps (open or print in a new tab, and the full report by
+ *                     email).
  *   Step 4 (server) – shows illustrative Optimasi example pages (before/after
  *                     on fictional stores) — never the client's own data.
  *
@@ -53,6 +54,12 @@ class Optimasi_Onboarding {
     // report page re-render the new 4-page report after a page reload (the token
     // stays server-side; it is never printed into the page).
     const OPTION_REPORT_TOKEN          = 'optimasi_onboarding_report_token';
+    // WHEN that token was written. Kept beside it because a token with no date cannot
+    // answer the only question a returning visitor has, and the page cannot describe a
+    // document it cannot date: "a report exists" was enough for the page to render a
+    // finished-looking report on load, which is why step 3 appeared complete before
+    // steps 1 and 2 had run.
+    const OPTION_REPORT_AT             = 'optimasi_onboarding_report_at';
 
     // --- Optimasi service ---
     // Named in the readme because WP.org guideline 6 requires the service behind
@@ -196,9 +203,13 @@ class Optimasi_Onboarding {
                     'samples'      => (bool) get_option( self::OPTION_CONSENT_SAMPLES, false ),
                     'preview'      => (bool) get_option( self::OPTION_CONSENT_PREVIEW, false ),
                 ],
-                // A report token from a previous run lets the page re-render the
-                // new 4-page report on load without re-running the review.
-                'has_report'        => ! empty( get_option( self::OPTION_REPORT_TOKEN, '' ) ),
+                // Provenance of the stored report: WHEN it was produced, not merely
+                // whether one exists. The page used to get a bare "has one" flag, which
+                // is why it restored a finished report before the visitor had run
+                // anything — it could not tell "just now" from "three weeks ago", so it
+                // restored both the same way. The token itself is NOT here; it never
+                // leaves the server.
+                'report'            => self::report_state_for_js(),
                 // Consent is remembered, so the checkbox can start ticked.
                 'consent_recorded'  => self::consent_recorded(),
                 // Step 4's destination. Localised rather than hard-coded in the
@@ -355,41 +366,74 @@ class Optimasi_Onboarding {
                         </div>
                         <span class="optimasi-step-state"></span>
                     </div>
-                    <div class="optimasi-step-actions">
-                        <button id="optimasi-report-print" class="button button-primary" disabled>
-                            <?php esc_html_e( 'Print / Save as PDF', 'optimasi-onboarding' ); ?>
+                    <!-- Provenance for a report from an EARLIER review. Hidden until the
+                         page knows there is a stored one, and dated when it does — this
+                         step used to be revealed on load with no indication that its
+                         document came from a previous run, so a visitor who had not yet
+                         done anything saw a finished report and a "Ready" state, which
+                         reads as steps being skipped. The date comes from the server; a
+                         token written before that date was stored says "an earlier
+                         review" rather than inventing one. -->
+                    <p id="optimasi-report-previous" class="optimasi-report-previous is-hidden">
+                        <span id="optimasi-report-previous-text"></span>
+                        <button type="button" id="optimasi-report-previous-show" class="button button-secondary">
+                            <?php esc_html_e( 'Show that report', 'optimasi-onboarding' ); ?>
                         </button>
-                        <button id="optimasi-report-open" class="button button-secondary" disabled>
-                            <?php esc_html_e( 'Open in a new tab', 'optimasi-onboarding' ); ?>
+                    </p>
+                    <div class="optimasi-step-actions">
+                        <!-- ONE control, not two. Printing from this frame cannot
+                             work and never could: window.print() is gated behind the
+                             sandbox's `allow-modals` flag (which the frame does not
+                             have), and the frame is display:none — a hidden frame has
+                             no layout to paginate. The old "Print / Save as PDF"
+                             therefore did nothing at all on click: the call did not
+                             throw, so the catch-and-fall-back never ran, and there was
+                             no error to read. The document prints perfectly well from
+                             the browser's own Print once it is in a tab, which is what
+                             this button opens. -->
+                        <button id="optimasi-report-open" class="button button-primary" disabled>
+                            <?php esc_html_e( 'Open or print in a new tab', 'optimasi-onboarding' ); ?>
                         </button>
                     </div>
                     <div id="optimasi-report-status" class="optimasi-report-status" aria-live="polite"></div>
                     <iframe id="optimasi-report-frame" class="optimasi-report-frame" title="<?php esc_attr_e( 'Sales-Ready Standard Inspection Report', 'optimasi-onboarding' ); ?>" sandbox="allow-same-origin" style="display:none;"></iframe>
+
+                    <!-- The email offer belongs with the document it delivers, so it
+                         sits inside step 3 directly under the summary — not at the foot
+                         of the page between two step cards.
+
+                         It is also not "the same report by email". What is on screen is
+                         the four-page summary; the emailed document is the FULL review —
+                         an executive summary, the consultant's narrative, the brand-voice
+                         and duplicate-copy findings, the recommended plan — which is a
+                         genuinely different, longer report. Describing it accurately is
+                         what stops it being read as a duplicate of the thing above and
+                         skipped. -->
+                    <div id="optimasi-report-extra" class="optimasi-report-extra is-hidden">
+                        <div class="optimasi-email-card">
+                            <h2><?php esc_html_e( 'Email the full report', 'optimasi-onboarding' ); ?></h2>
+                            <p><?php esc_html_e( 'The full report is the document worth keeping — and it is not the four-page summary on this page. It opens with an executive summary you can forward to whoever signs off on content, then the consultant’s read: what is working, where the opportunity is, what the brand-voice and duplicate-copy analysis found, and the recommended plan, set out in full rather than summarised. It is written to be read by someone who was not in the room.', 'optimasi-onboarding' ); ?></p>
+                            <p><?php esc_html_e( 'Enter your email and we will send you a confirmation link, then the PDF. No spam, and you can unsubscribe at any time.', 'optimasi-onboarding' ); ?></p>
+                            <div class="optimasi-email-form">
+                                <input type="email" id="optimasi-report-email" class="regular-text" autocomplete="email" placeholder="you@yourstore.com" />
+                                <button id="optimasi-email-submit" class="button button-primary">
+                                    <?php esc_html_e( 'Email me the full report', 'optimasi-onboarding' ); ?>
+                                </button>
+                                <span id="optimasi-email-spinner" class="spinner"></span>
+                            </div>
+                            <p id="optimasi-email-message" class="optimasi-inline-message"></p>
+                        </div>
+                    </div>
                 </li>
 
             </ol>
 
-            <!-- The email capture belongs with the report it sends, so it sits
-                 between step 3 and the example pages rather than at the foot of
-                 the page. The steps list is split in two so it can interrupt
-                 the sequence legally — an <ol> may only contain <li> — and
-                 start="4" keeps step 4's position in the ordered list for
-                 assistive tech (the visible numbers are the .optimasi-step-num
-                 spans). -->
-            <div id="optimasi-report-extra" class="optimasi-report-extra is-hidden">
-                <div class="optimasi-email-card">
-                    <h2><?php esc_html_e( 'Email me this report', 'optimasi-onboarding' ); ?></h2>
-                    <p><?php esc_html_e( 'Enter your email and we’ll send you this four-page report as a PDF, along with next-step suggestions. No spam — unsubscribe anytime.', 'optimasi-onboarding' ); ?></p>
-                    <div class="optimasi-email-form">
-                        <input type="email" id="optimasi-report-email" class="regular-text" autocomplete="email" placeholder="you@yourstore.com" />
-                        <button id="optimasi-email-submit" class="button button-primary">
-                            <?php esc_html_e( 'Email me this report', 'optimasi-onboarding' ); ?>
-                        </button>
-                        <span id="optimasi-email-spinner" class="spinner"></span>
-                    </div>
-                    <p id="optimasi-email-message" class="optimasi-inline-message"></p>
-                </div>
-            </div>
+            <!-- The steps list is split in two because the offer below sits between
+                 step 3 and step 4, and an <ol> may only contain <li>; start="4" keeps
+                 step 4's position in the ordered list for assistive tech (the visible
+                 numbers are the .optimasi-step-num spans). The email offer used to
+                 interrupt here too — it now lives inside step 3, with the document it
+                 delivers. -->
 
             <!-- The offer. Sits above the example pages, revealed once there is a
                  report to talk about, and kept to the plugin's own page — WP.org
@@ -877,6 +921,10 @@ class Optimasi_Onboarding {
         // stays in a WP option — it is never exposed to the browser.
         if ( ! empty( $data['report_token'] ) ) {
             update_option( self::OPTION_REPORT_TOKEN, sanitize_text_field( (string) $data['report_token'] ) );
+            // Written in the same request as the token, so the two cannot disagree: the
+            // page offers "your report from <date>", and a date that outlived its token
+            // (or the reverse) would label the wrong document.
+            update_option( self::OPTION_REPORT_AT, time() );
         }
 
         // Only the request id goes back. The token is a capability: a value in the
@@ -1729,6 +1777,71 @@ class Optimasi_Onboarding {
         update_option( self::OPTION_CONSENT_SAMPLES, false );
         update_option( self::OPTION_CONSENT_PREVIEW, false );
         wp_send_json_success( [ 'connection_status' => 'not_connected' ] );
+    }
+
+    /**
+     * Remove everything this plugin owns. Run by `uninstall.php` when the plugin is
+     * DELETED from the Plugins screen — not when it is deactivated.
+     *
+     * Deactivation deliberately keeps the data: a deactivated plugin that came back
+     * blank would lose the remembered consent and the last report, and this plugin is
+     * an audit a merchant runs over days rather than one sitting.
+     *
+     * **Owned means owned.** Five option keys are shared with the full Optimasi Content
+     * Manager on purpose (that is the connection handoff — site key, endpoint, status,
+     * account, store id), so they are NOT deleted here. Deleting them would erase the
+     * other plugin's connection and silently disconnect a store that is still
+     * connected; the key is the Resource Owner's, not this plugin's. Everything under
+     * this plugin's own names is removed.
+     *
+     * No files are involved: this plugin writes nothing to disk — no uploads, no cache,
+     * no exports — so there is nothing of its own to delete. WordPress removes the
+     * plugin's files when it deletes the plugin, which is the same action that fires
+     * this method.
+     */
+    public static function uninstall(): void {
+        if ( ! current_user_can( 'delete_plugins' ) ) {
+            return;
+        }
+
+        $owned = [
+            self::OPTION_API_URL,
+            self::OPTION_CONSENT_SEND,
+            self::OPTION_REPORT_TOKEN,
+            self::OPTION_REPORT_AT,
+            self::OPTION_CONSENT_MEASUREMENTS,
+            self::OPTION_CONSENT_SAMPLES,
+            self::OPTION_CONSENT_PREVIEW,
+        ];
+
+        foreach ( $owned as $option ) {
+            delete_option( $option );
+        }
+    }
+
+    /**
+     * What the page should say about the stored report, and how to phrase it.
+     *
+     * The copy lives here rather than in JavaScript so it is translatable. `label` is
+     * empty for a token written by a version that did not store its date (1.0.0 and
+     * earlier) — the page then says "an earlier review" rather than inventing a date it
+     * does not have.
+     *
+     * @return array{has: bool, label: string, with_date: string, without_date: string}
+     */
+    private static function report_state_for_js(): array {
+        $token = (string) get_option( self::OPTION_REPORT_TOKEN, '' );
+        $at    = (int) get_option( self::OPTION_REPORT_AT, 0 );
+
+        return [
+            'has'          => $token !== '',
+            'label'        => ( $token !== '' && $at > 0 )
+                ? date_i18n( (string) get_option( 'date_format', 'j F Y' ), $at )
+                : '',
+            /* translators: %s: the date the stored report was produced, e.g. "4 November 2026". */
+            'with_date'    => __( 'You have a report from your review on %s. Run steps 1 and 2 again for one that reflects your catalogue today.', 'optimasi-onboarding' ),
+            'without_date' => __( 'You have a report from an earlier review. Run steps 1 and 2 again for one that reflects your catalogue today.', 'optimasi-onboarding' ),
+        ];
     }
 
     private static function deep_init(): void {
