@@ -16,6 +16,14 @@ without an account.
 product data — the plugin reads and reports. Its only stored state is the
 remembered consent decision and the last report's reference.
 
+## How Optimasi works
+
+**Watch the walkthrough: <https://optimasi.io/how-it-works/>**
+
+Step 4 of the audit opens this page. The walkthrough explains how Optimasi closes the
+gaps the audit measures, so you can see what comes after the report before deciding
+whether you want any of it.
+
 ## Install
 
 1. Download `optimasi-onboarding.zip` from the [latest release](https://github.com/cybernamix/optimasi-onboarding/releases/latest).
