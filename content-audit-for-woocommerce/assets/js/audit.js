@@ -39,11 +39,13 @@ jQuery(document).ready(function ($) {
     // admin-post route that serves the report with `Content-Security-Policy: sandbox`.
     let reportDocHtml = '';
 
-    // Scan cap: review the first SCAN_CAP published products — enough to judge
-    // the state of the store without shipping an unbounded payload (Step 2 and
-    // Step 3 send per-product description text to the Optimasi servers).
-    const SCAN_CAP = 1000;
-    // Per-product metric rows that travel with the emailed report (≤ SCAN_CAP).
+    // The scan measures the whole published catalogue. Step 1 runs against this
+    // site's own database and sends no product text, so there is no product-count
+    // budget to apply here — only step 2 ships text, and that is a fixed sample
+    // (VOICE_SAMPLE) on the server.
+    //
+    // REPORT_MAX_PRODUCTS is a transport/render budget for the report document, not
+    // a scan budget: the audit covers every product either way.
     const REPORT_MAX_PRODUCTS = 1000;
     // "Show the evidence" table page size.
     const EVIDENCE_PAGE = 50;
@@ -73,13 +75,13 @@ jQuery(document).ready(function ($) {
     });
 
     // ------------------------------------------------------------------
-    // Step 1 — scan up to SCAN_CAP products (local, nothing leaves the site)
+    // Step 1 — scan every published product (local, nothing leaves the site)
     // ------------------------------------------------------------------
     $run.on('click', function (e) {
         e.preventDefault();
         runStep(1, 'run_local', null,
             'Scanning your products…',
-            'Reading metadata for up to the first ' + SCAN_CAP + ' published products. Nothing is sent to Optimasi in this step.')
+            'Reading metadata for every published product. Nothing is sent to Optimasi in this step.')
             .then(function (res) {
                 if (res.ok) {
                     scanData = res.data;

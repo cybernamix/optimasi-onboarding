@@ -1,11 +1,11 @@
 <?php
 /**
- * Optimasi Content Audit — 4-step content review (scan / brand voice / report /
+ * Content Audit for WooCommerce — 4-step content review (scan / brand voice / report /
  * video).
  *
  * A self-contained, review-only content-audit tool for new Optimasi clients:
- *   Step 1 (local)  – scans up to the first 1000 published products (facts only;
- *                     nothing leaves the site).
+ *   Step 1 (local)  – scans every published product (facts only; nothing leaves
+ *                     the site).
  *   Step 2 (server) – sends short description samples to the Optimasi review
  *                     endpoint, which returns brand-voice consistency, a
  *                     weighted completeness score and AI-readiness checks.
@@ -115,10 +115,14 @@ class Optimasi_Onboarding {
     // the site. Nothing is sent unless this is true — see analyse_voice().
     const OPTION_CONSENT_SEND = 'optimasi_onboarding_consent_send_samples';
 
-    // Scan/analysis budget: we scan up to SCAN_CAP products (representative
-    // slice), but brand voice is judged from a VOICE_SAMPLE even spread — a few
-    // dozen descriptions give a reliable tone read without shipping every page.
-    const SCAN_CAP     = 1000;
+    // The scan measures the whole published catalogue. It runs against this site's
+    // own database and sends no product text, so there is no product-count budget
+    // to apply — a cap here reported a 1000-product slice as if it were the store.
+    //
+    // Brand voice is the one step that ships description text off-site, so it is
+    // judged from a VOICE_SAMPLE even spread: a few dozen descriptions give a
+    // reliable tone read, and the cost of that step must not grow with the
+    // catalogue.
     const VOICE_SAMPLE = 50;
 
     public static function init(): void {
@@ -146,27 +150,27 @@ class Optimasi_Onboarding {
             return;
         }
         $content = '<p class="privacy-policy-tutorial">'
-            . esc_html__( 'Suggested text: the Optimasi Content Audit plugin runs a free review of your product content. The scanning step runs entirely on your site. Later steps send data to Optimasi, as described below.', 'optimasi-onboarding' )
+            . esc_html__( 'Suggested text: the Content Audit for WooCommerce plugin runs a free review of your product content. The scanning step runs entirely on your site. Later steps send data to Optimasi, as described below.', 'content-audit-for-woocommerce' )
             . '</p><p>'
-            . esc_html__( 'When you run the brand-voice step, a short sample of each published product description — its title, short description and main description — together with the product category names and this site\'s URL, is sent to the Optimasi review service. This happens only after you tick the consent checkbox on that step. Analysing that sample is how the tone and vocabulary across your catalogue are measured.', 'optimasi-onboarding' )
+            . esc_html__( 'When you run the brand-voice step, a short sample of each published product description — its title, short description and main description — together with the product category names and this site\'s URL, is sent to the Optimasi review service. This happens only after you tick the consent checkbox on that step. Analysing that sample is how the tone and vocabulary across your catalogue are measured.', 'content-audit-for-woocommerce' )
             . '</p><p>'
-            . esc_html__( 'When the review finishes it is saved to Optimasi so that the report can be rendered and reopened later: the per-product metrics for up to the first 1,000 products — lengths, counts and which content blocks each product carries — together with each product\'s title, its category name and this site\'s URL. No product description text is sent in this step. After that the report is fetched by reference, so no product data travels again.', 'optimasi-onboarding' )
+            . esc_html__( 'When the review finishes it is saved to Optimasi so that the report can be rendered and reopened later: the per-product metrics for your published catalogue — lengths, counts and which content blocks each product carries — together with each product\'s title, its category name and this site\'s URL. Every published product is measured, so the totals describe the catalogue rather than a sample of it. No product description text is sent in this step. After that the report is fetched by reference, so no product data travels again.', 'content-audit-for-woocommerce' )
             . '</p><p>'
-            . esc_html__( 'Rendering your report and emailing it to you send the report reference that the previous step returned, plus the email address you enter if you ask for the report to be emailed.', 'optimasi-onboarding' )
+            . esc_html__( 'Rendering your report and emailing it to you send the report reference that the previous step returned, plus the email address you enter if you ask for the report to be emailed.', 'content-audit-for-woocommerce' )
             . '</p><p>'
-            . esc_html__( 'If you ask for a one-on-one, the contact channel you select and the phone number, email address and role you enter are sent to Optimasi so that the call can be arranged.', 'optimasi-onboarding' )
+            . esc_html__( 'If you ask for a one-on-one, the contact channel you select and the phone number, email address and role you enter are sent to Optimasi so that the call can be arranged.', 'content-audit-for-woocommerce' )
             . '</p><p>'
-            . esc_html__( 'Customer records, orders, addresses, payment details and customer email addresses are never read or sent. No data is sent by the product-scanning step or the how-it-works step.', 'optimasi-onboarding' )
+            . esc_html__( 'Customer records, orders, addresses, payment details and customer email addresses are never read or sent. No data is sent by the product-scanning step or the how-it-works step.', 'content-audit-for-woocommerce' )
             . '</p><p>'
             . sprintf(
                 /* translators: 1: Terms of Use URL, 2: privacy policy URL. */
-                esc_html__( 'Optimasi\'s Terms of Use are at %1$s and its privacy policy at %2$s.', 'optimasi-onboarding' ),
+                esc_html__( 'Optimasi\'s Terms of Use are at %1$s and its privacy policy at %2$s.', 'content-audit-for-woocommerce' ),
                 esc_url( self::TERMS_URL ),
                 esc_url( self::PRIVACY_URL )
             )
             . '</p>';
 
-        wp_add_privacy_policy_content( 'Optimasi Content Audit', $content );
+        wp_add_privacy_policy_content( 'Content Audit for WooCommerce', $content );
     }
 
     /**
@@ -238,7 +242,7 @@ class Optimasi_Onboarding {
         // name; $menu_title is the sidebar, where 22 characters wrap onto a second
         // line and push the rest of the menu down.
         add_menu_page(
-            'Optimasi Content Audit',
+            'Content Audit for WooCommerce',
             'Content Audit',
             'manage_options',
             self::MENU_SLUG,
@@ -304,22 +308,22 @@ class Optimasi_Onboarding {
         }
         ?>
         <div class="wrap optimasi-audit">
-            <h1><?php esc_html_e( 'Optimasi Ecommerce Content Completeness Audit', 'optimasi-onboarding' ); ?></h1>
-            <p class="optimasi-lead"><?php esc_html_e( 'A free 4-step review of your product content — nothing is written to your site and no registration is required.', 'optimasi-onboarding' ); ?></p>
+            <h1><?php esc_html_e( 'Optimasi Ecommerce Content Completeness Audit', 'content-audit-for-woocommerce' ); ?></h1>
+            <p class="optimasi-lead"><?php esc_html_e( 'A free 4-step review of your product content — nothing is written to your site and no registration is required.', 'content-audit-for-woocommerce' ); ?></p>
 
             <ol class="optimasi-steps">
                 <li id="optimasi-step-1" class="optimasi-step is-active">
                     <div class="optimasi-step-head">
                         <span class="optimasi-step-num">1</span>
                         <div class="optimasi-step-title">
-                            <h2><?php esc_html_e( 'Scan your products', 'optimasi-onboarding' ); ?></h2>
-                            <p><?php esc_html_e( 'We measure up to the first 1,000 of your published products right on your site — description length, image count, reviews, and which content blocks each product has. Nothing is sent to Optimasi during this step.', 'optimasi-onboarding' ); ?></p>
+                            <h2><?php esc_html_e( 'Scan your products', 'content-audit-for-woocommerce' ); ?></h2>
+                            <p><?php esc_html_e( 'We measure every one of your published products right on your site — description length, image count, reviews, and which content blocks each product has. Nothing is sent to Optimasi during this step.', 'content-audit-for-woocommerce' ); ?></p>
                         </div>
                         <span class="optimasi-step-state"></span>
                     </div>
                     <div class="optimasi-step-actions">
                         <button id="optimasi-run-audit" class="button button-primary">
-                            <?php esc_html_e( 'Scan my products', 'optimasi-onboarding' ); ?>
+                            <?php esc_html_e( 'Scan my products', 'content-audit-for-woocommerce' ); ?>
                         </button>
                     </div>
                     <div id="optimasi-result-1" class="optimasi-step-result"></div>
@@ -329,14 +333,14 @@ class Optimasi_Onboarding {
                     <div class="optimasi-step-head">
                         <span class="optimasi-step-num">2</span>
                         <div class="optimasi-step-title">
-                            <h2><?php esc_html_e( 'Analyse your brand voice', 'optimasi-onboarding' ); ?></h2>
-                            <p><?php esc_html_e( "We send a short sample of each scanned product description to Optimasi's servers and check whether your tone and vocabulary are consistent across the catalog.", 'optimasi-onboarding' ); ?></p>
+                            <h2><?php esc_html_e( 'Analyse your brand voice', 'content-audit-for-woocommerce' ); ?></h2>
+                            <p><?php esc_html_e( "We send a short sample of each scanned product description to Optimasi's servers and check whether your tone and vocabulary are consistent across the catalog.", 'content-audit-for-woocommerce' ); ?></p>
                         </div>
                         <span class="optimasi-step-state"></span>
                     </div>
                     <div class="optimasi-step-actions">
                         <button id="optimasi-analyse-voice" class="button button-primary" disabled>
-                            <?php esc_html_e( 'Analyse brand voice', 'optimasi-onboarding' ); ?>
+                            <?php esc_html_e( 'Analyse brand voice', 'content-audit-for-woocommerce' ); ?>
                         </button>
                     </div>
                     <!-- The only step that ships product description text off the
@@ -346,7 +350,7 @@ class Optimasi_Onboarding {
                     <p class="optimasi-consent">
                         <label for="optimasi-consent-send">
                             <input type="checkbox" id="optimasi-consent-send"<?php checked( self::consent_recorded() ); ?> />
-                            <?php esc_html_e( 'I agree to send a short sample of my product descriptions to Optimasi for this analysis.', 'optimasi-onboarding' ); ?>
+                            <?php esc_html_e( 'I agree to send a short sample of my product descriptions to Optimasi for this analysis.', 'content-audit-for-woocommerce' ); ?>
                         </label>
                     </p>
                     <div id="optimasi-result-2" class="optimasi-step-result"></div>
@@ -361,8 +365,8 @@ class Optimasi_Onboarding {
                     <div class="optimasi-step-head">
                         <span class="optimasi-step-num">3</span>
                         <div class="optimasi-step-title">
-                            <h2><?php esc_html_e( 'Your Sales-Ready Standard Inspection Report', 'optimasi-onboarding' ); ?></h2>
-                            <p><?php esc_html_e( 'Your full four-page report — key findings, results by category and a prioritised optimisation roadmap. Print or save it as a PDF, or open it in a new tab.', 'optimasi-onboarding' ); ?></p>
+                            <h2><?php esc_html_e( 'Your Sales-Ready Standard Inspection Report', 'content-audit-for-woocommerce' ); ?></h2>
+                            <p><?php esc_html_e( 'Your Sales-Ready Standard Inspection Report — four pages: key findings, results by category and a prioritised optimisation roadmap. Read it here or open it in a new tab. The longer executive report, 10–11 pages, is emailed to you from the card below.', 'content-audit-for-woocommerce' ); ?></p>
                         </div>
                         <span class="optimasi-step-state"></span>
                     </div>
@@ -377,7 +381,7 @@ class Optimasi_Onboarding {
                     <p id="optimasi-report-previous" class="optimasi-report-previous is-hidden">
                         <span id="optimasi-report-previous-text"></span>
                         <button type="button" id="optimasi-report-previous-show" class="button button-secondary">
-                            <?php esc_html_e( 'Show that report', 'optimasi-onboarding' ); ?>
+                            <?php esc_html_e( 'Show that report', 'content-audit-for-woocommerce' ); ?>
                         </button>
                     </p>
                     <div class="optimasi-step-actions">
@@ -392,11 +396,11 @@ class Optimasi_Onboarding {
                              the browser's own Print once it is in a tab, which is what
                              this button opens. -->
                         <button id="optimasi-report-open" class="button button-primary" disabled>
-                            <?php esc_html_e( 'Open or print in a new tab', 'optimasi-onboarding' ); ?>
+                            <?php esc_html_e( 'Open or print in a new tab', 'content-audit-for-woocommerce' ); ?>
                         </button>
                     </div>
                     <div id="optimasi-report-status" class="optimasi-report-status" aria-live="polite"></div>
-                    <iframe id="optimasi-report-frame" class="optimasi-report-frame" title="<?php esc_attr_e( 'Sales-Ready Standard Inspection Report', 'optimasi-onboarding' ); ?>" sandbox="allow-same-origin" style="display:none;"></iframe>
+                    <iframe id="optimasi-report-frame" class="optimasi-report-frame" title="<?php esc_attr_e( 'Sales-Ready Standard Inspection Report', 'content-audit-for-woocommerce' ); ?>" sandbox="allow-same-origin" style="display:none;"></iframe>
 
                     <!-- The email offer belongs with the document it delivers, so it
                          sits inside step 3 directly under the summary — not at the foot
@@ -411,13 +415,13 @@ class Optimasi_Onboarding {
                          skipped. -->
                     <div id="optimasi-report-extra" class="optimasi-report-extra is-hidden">
                         <div class="optimasi-email-card">
-                            <h2><?php esc_html_e( 'Email the full report', 'optimasi-onboarding' ); ?></h2>
-                            <p><?php esc_html_e( 'The full report is the document worth keeping — and it is not the four-page summary on this page. It opens with an executive summary you can forward to whoever signs off on content, then the consultant’s read: what is working, where the opportunity is, what the brand-voice and duplicate-copy analysis found, and the recommended plan, set out in full rather than summarised. It is written to be read by someone who was not in the room.', 'optimasi-onboarding' ); ?></p>
-                            <p><?php esc_html_e( 'Enter your email and we will send you a confirmation link, then the PDF. No spam, and you can unsubscribe at any time.', 'optimasi-onboarding' ); ?></p>
+                            <h2><?php esc_html_e( 'Email the full report', 'content-audit-for-woocommerce' ); ?></h2>
+                            <p><?php esc_html_e( 'The full report is the document worth keeping — and it is not the four-page summary on this page. It opens with an executive summary you can forward to whoever signs off on content, then the consultant’s read: what is working, where the opportunity is, what the brand-voice and duplicate-copy analysis found, and the recommended plan, set out in full rather than summarised. It is written to be read by someone who was not in the room.', 'content-audit-for-woocommerce' ); ?></p>
+                            <p><?php esc_html_e( 'Enter your email and we will send you a confirmation link, then the PDF. No spam, and you can unsubscribe at any time.', 'content-audit-for-woocommerce' ); ?></p>
                             <div class="optimasi-email-form">
                                 <input type="email" id="optimasi-report-email" class="regular-text" autocomplete="email" placeholder="you@yourstore.com" />
                                 <button id="optimasi-email-submit" class="button button-primary">
-                                    <?php esc_html_e( 'Email me the full report', 'optimasi-onboarding' ); ?>
+                                    <?php esc_html_e( 'Email me the full report', 'content-audit-for-woocommerce' ); ?>
                                 </button>
                                 <span id="optimasi-email-spinner" class="spinner"></span>
                             </div>
@@ -443,13 +447,13 @@ class Optimasi_Onboarding {
                  here lands in the same sales-contact record as one made from an
                  email. -->
             <div id="optimasi-help" class="optimasi-help is-hidden">
-                <h2><?php esc_html_e( 'How Optimasi can help', 'optimasi-onboarding' ); ?></h2>
-                <p class="optimasi-help-copy"><?php esc_html_e( 'Your report shows what is missing. Optimasi closes the gap: we write the descriptions, brand storytelling, FAQs, review summaries and trust content your catalogue needs, in your brand voice, and apply it to your product pages. Most stores see that as minutes per product rather than the hours it takes to write from scratch — and because every block is grounded in your own product facts and spec sheets, nothing is invented.', 'optimasi-onboarding' ); ?></p>
-                <p class="optimasi-help-copy"><?php esc_html_e( 'We can work through the whole roadmap above, or start with the one category costing you the most. Either way you keep control: nothing is published without your review.', 'optimasi-onboarding' ); ?></p>
+                <h2><?php esc_html_e( 'How Optimasi can help', 'content-audit-for-woocommerce' ); ?></h2>
+                <p class="optimasi-help-copy"><?php esc_html_e( 'Your report shows what is missing. Optimasi closes the gap: we write the descriptions, brand storytelling, FAQs, review summaries and trust content your catalogue needs, in your brand voice, and apply it to your product pages. Most stores see that as minutes per product rather than the hours it takes to write from scratch — and because every block is grounded in your own product facts and spec sheets, nothing is invented.', 'content-audit-for-woocommerce' ); ?></p>
+                <p class="optimasi-help-copy"><?php esc_html_e( 'We can work through the whole roadmap above, or start with the one category costing you the most. Either way you keep control: nothing is published without your review.', 'content-audit-for-woocommerce' ); ?></p>
 
                 <form id="optimasi-contact-form" class="optimasi-contact-form">
                     <fieldset class="optimasi-contact-channels">
-                        <legend><?php esc_html_e( 'I’d prefer to talk it through on', 'optimasi-onboarding' ); ?></legend>
+                        <legend><?php esc_html_e( 'I’d prefer to talk it through on', 'content-audit-for-woocommerce' ); ?></legend>
                         <?php foreach ( self::CONTACT_CHANNELS as $index => $channel ) : ?>
                             <label class="optimasi-contact-opt">
                                 <input type="radio" name="optimasi_channel" value="<?php echo esc_attr( $channel ); ?>"<?php checked( 0 === $index ); ?> />
@@ -459,19 +463,19 @@ class Optimasi_Onboarding {
                     </fieldset>
 
                     <div id="optimasi-contact-number-wrap" class="optimasi-contact-field is-hidden">
-                        <label for="optimasi-contact-number"><?php esc_html_e( 'Your number (international format)', 'optimasi-onboarding' ); ?></label>
+                        <label for="optimasi-contact-number"><?php esc_html_e( 'Your number (international format)', 'content-audit-for-woocommerce' ); ?></label>
                         <input type="tel" id="optimasi-contact-number" class="regular-text" placeholder="+61 4xx xxx xxx" autocomplete="tel" />
                     </div>
 
                     <div class="optimasi-contact-field">
-                        <label for="optimasi-contact-email"><?php esc_html_e( 'Your email (so we can reach you)', 'optimasi-onboarding' ); ?></label>
+                        <label for="optimasi-contact-email"><?php esc_html_e( 'Your email (so we can reach you)', 'content-audit-for-woocommerce' ); ?></label>
                         <input type="email" id="optimasi-contact-email" class="regular-text" autocomplete="email" placeholder="you@yourstore.com" />
                     </div>
 
                     <div class="optimasi-contact-field">
-                        <label for="optimasi-contact-role"><?php esc_html_e( 'I am (optional)', 'optimasi-onboarding' ); ?></label>
+                        <label for="optimasi-contact-role"><?php esc_html_e( 'I am (optional)', 'content-audit-for-woocommerce' ); ?></label>
                         <select id="optimasi-contact-role">
-                            <option value=""><?php esc_html_e( 'Select…', 'optimasi-onboarding' ); ?></option>
+                            <option value=""><?php esc_html_e( 'Select…', 'content-audit-for-woocommerce' ); ?></option>
                             <?php foreach ( self::CONTACT_ROLES as $role ) : ?>
                                 <option value="<?php echo esc_attr( $role ); ?>"><?php echo esc_html( self::CONTACT_ROLE_LABELS[ $role ] ); ?></option>
                             <?php endforeach; ?>
@@ -480,7 +484,7 @@ class Optimasi_Onboarding {
 
                     <p class="optimasi-contact-submit">
                         <button id="optimasi-contact-submit" class="button button-primary">
-                            <?php esc_html_e( 'Request a one-on-one', 'optimasi-onboarding' ); ?>
+                            <?php esc_html_e( 'Request a one-on-one', 'content-audit-for-woocommerce' ); ?>
                         </button>
                         <span id="optimasi-contact-spinner" class="spinner"></span>
                     </p>
@@ -488,9 +492,9 @@ class Optimasi_Onboarding {
                     <p class="optimasi-contact-privacy"><?php
                         printf(
                             /* translators: %s: link to the Optimasi privacy policy. */
-                            esc_html__( 'We use what you enter here only to contact you about your store, as described in the %s.', 'optimasi-onboarding' ),
+                            esc_html__( 'We use what you enter here only to contact you about your store, as described in the %s.', 'content-audit-for-woocommerce' ),
                             '<a href="' . esc_url( self::PRIVACY_URL ) . '" target="_blank" rel="noopener noreferrer">'
-                                . esc_html__( 'Optimasi privacy policy', 'optimasi-onboarding' ) . '</a>'
+                                . esc_html__( 'Optimasi privacy policy', 'content-audit-for-woocommerce' ) . '</a>'
                         );
                     ?></p>
                 </form>
@@ -501,8 +505,8 @@ class Optimasi_Onboarding {
                     <div class="optimasi-step-head">
                         <span class="optimasi-step-num">4</span>
                         <div class="optimasi-step-title">
-                            <h2><?php esc_html_e( 'See How Optimasi Works', 'optimasi-onboarding' ); ?></h2>
-                            <p><?php esc_html_e( 'Watch a video explaining how Optimasi can help your WooCommerce store with Sales-ready pages optimised for AI search.', 'optimasi-onboarding' ); ?></p>
+                            <h2><?php esc_html_e( 'See How Optimasi Works', 'content-audit-for-woocommerce' ); ?></h2>
+                            <p><?php esc_html_e( 'Watch a video explaining how Optimasi can help your WooCommerce store with Sales-ready pages optimised for AI search.', 'content-audit-for-woocommerce' ); ?></p>
                         </div>
                         <span class="optimasi-step-state"></span>
                     </div>
@@ -512,7 +516,7 @@ class Optimasi_Onboarding {
                              was called `optimasi-preview-rewrites` from when the step
                              fetched a rewrite-preview gallery, which it no longer does. -->
                         <button id="optimasi-how-it-works" class="button button-primary" disabled>
-                            <?php esc_html_e( 'See how it works', 'optimasi-onboarding' ); ?>
+                            <?php esc_html_e( 'See how it works', 'content-audit-for-woocommerce' ); ?>
                         </button>
                     </div>
                     <div id="optimasi-result-4" class="optimasi-step-result"></div>
@@ -522,17 +526,17 @@ class Optimasi_Onboarding {
             <?php if ( self::show_advanced_panel() ) : ?>
             <div class="optimasi-advanced">
                 <details>
-                    <summary><?php esc_html_e( 'Advanced — review service endpoint', 'optimasi-onboarding' ); ?></summary>
+                    <summary><?php esc_html_e( 'Advanced — review service endpoint', 'content-audit-for-woocommerce' ); ?></summary>
                     <p class="description"><?php
                         printf(
                             /* translators: %s: the default review service URL. */
-                            esc_html__( 'Where this free review runs. Leave blank to use the default service (%s). Set this only to point a test or agency site at a different instance — a wrong value here breaks steps 2, 3 and connect, and nothing in the page will say why.', 'optimasi-onboarding' ),
+                            esc_html__( 'Where this free review runs. Leave blank to use the default service (%s). Set this only to point a test or agency site at a different instance — a wrong value here breaks steps 2, 3 and connect, and nothing in the page will say why.', 'content-audit-for-woocommerce' ),
                             esc_html( self::DEFAULT_API_URL )
                         );
                     ?></p>
                     <div class="optimasi-email-form">
                         <input type="url" id="optimasi-api-url" class="regular-text code" placeholder="<?php echo esc_attr( self::DEFAULT_API_URL ); ?>" value="<?php echo esc_attr( get_option( self::OPTION_API_URL, '' ) ); ?>" />
-                        <button id="optimasi-api-url-save" class="button button-secondary"><?php esc_html_e( 'Save endpoint', 'optimasi-onboarding' ); ?></button>
+                        <button id="optimasi-api-url-save" class="button button-secondary"><?php esc_html_e( 'Save endpoint', 'content-audit-for-woocommerce' ); ?></button>
                         <span id="optimasi-api-url-spinner" class="spinner"></span>
                     </div>
                     <p id="optimasi-api-url-message" class="optimasi-inline-message"></p>
@@ -550,7 +554,7 @@ class Optimasi_Onboarding {
     public static function handle_content_audit(): void {
         check_ajax_referer( 'optimasi_content_audit_nonce', 'security' );
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( __( 'Insufficient permissions.', 'optimasi-onboarding' ) );
+            wp_send_json_error( __( 'Insufficient permissions.', 'content-audit-for-woocommerce' ) );
             return;
         }
 
@@ -615,7 +619,7 @@ class Optimasi_Onboarding {
 
     private static function run_local_audit(): void {
         if ( ! function_exists( 'wc_get_products' ) || ! function_exists( 'wc_get_product' ) ) {
-            wp_send_json_error( __( 'WooCommerce is not active.', 'optimasi-onboarding' ) );
+            wp_send_json_error( __( 'WooCommerce is not active.', 'content-audit-for-woocommerce' ) );
             return;
         }
         $data                      = self::collect_measurements();
@@ -634,7 +638,7 @@ class Optimasi_Onboarding {
      */
     private static function analyse_voice(): void {
         if ( ! function_exists( 'wc_get_products' ) || ! function_exists( 'wc_get_product' ) ) {
-            self::send_error( __( 'WooCommerce is not active.', 'optimasi-onboarding' ), 422, 'woocommerce_inactive' );
+            self::send_error( __( 'WooCommerce is not active.', 'content-audit-for-woocommerce' ), 422, 'woocommerce_inactive' );
             return;
         }
 
@@ -665,7 +669,7 @@ class Optimasi_Onboarding {
         ], 30.0 );
 
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
@@ -673,7 +677,7 @@ class Optimasi_Onboarding {
         if ( $code !== 200 || ! is_array( $data ) || empty( $data['result'] ) ) {
             $msg = ( is_array( $data ) && ! empty( $data['message'] ) )
                 ? sanitize_text_field( (string) $data['message'] )
-                : __( 'Could not analyse your brand voice.', 'optimasi-onboarding' );
+                : __( 'Could not analyse your brand voice.', 'content-audit-for-woocommerce' );
             $err = ( is_array( $data ) && ! empty( $data['error'] ) )
                 ? sanitize_key( (string) $data['error'] )
                 : 'analyse_failed';
@@ -714,13 +718,13 @@ class Optimasi_Onboarding {
         ], 45.0 );
 
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
         $data = json_decode( (string) wp_remote_retrieve_body( $response ), true );
         if ( $code !== 200 || ! is_array( $data ) || empty( $data['ok'] ) || empty( $data['text'] ) ) {
-            $msg = self::api_message( $data, __( 'Could not write the audit findings.', 'optimasi-onboarding' ) );
+            $msg = self::api_message( $data, __( 'Could not write the audit findings.', 'content-audit-for-woocommerce' ) );
             self::send_error( $msg, ( $code >= 400 && $code < 500 ) ? $code : 502, 'findings_failed' );
             return;
         }
@@ -802,13 +806,13 @@ class Optimasi_Onboarding {
         ], 20.0 );
 
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
         $data = json_decode( (string) wp_remote_retrieve_body( $response ), true );
         if ( $code !== 200 || ! is_array( $data ) || empty( $data['ok'] ) || empty( $data['explainers'] ) ) {
-            $msg = self::api_message( $data, __( 'Could not write the content explainers.', 'optimasi-onboarding' ) );
+            $msg = self::api_message( $data, __( 'Could not write the content explainers.', 'content-audit-for-woocommerce' ) );
             self::send_error( $msg, ( $code >= 400 && $code < 500 ) ? $code : 502, 'explainers_failed' );
             return;
         }
@@ -853,7 +857,7 @@ class Optimasi_Onboarding {
     private static function email_report(): void {
         $email = sanitize_email( wp_unslash( (string) ( $_POST['email'] ?? '' ) ) );
         if ( ! is_email( $email ) ) {
-            self::send_error( __( 'Please enter a valid email address.', 'optimasi-onboarding' ), 422, 'invalid_email' );
+            self::send_error( __( 'Please enter a valid email address.', 'content-audit-for-woocommerce' ), 422, 'invalid_email' );
             return;
         }
         $report = self::json_field( 'report' );
@@ -875,7 +879,7 @@ class Optimasi_Onboarding {
         $response = self::api_request( 'POST', '/api/v1/preview/email-report', $body, 20.0 );
 
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
@@ -883,7 +887,7 @@ class Optimasi_Onboarding {
         if ( $code !== 200 || ! is_array( $data ) || empty( $data['ok'] ) ) {
             $msg = ( is_array( $data ) && ! empty( $data['message'] ) )
                 ? sanitize_text_field( (string) $data['message'] )
-                : __( 'Could not save your report request.', 'optimasi-onboarding' );
+                : __( 'Could not save your report request.', 'content-audit-for-woocommerce' );
             self::send_error( $msg, ( $code >= 400 && $code < 500 ) ? $code : 502, 'email_report_failed' );
             return;
         }
@@ -907,7 +911,7 @@ class Optimasi_Onboarding {
         ], 20.0 );
 
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
@@ -950,7 +954,7 @@ class Optimasi_Onboarding {
     public static function serve_report_document(): void {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die(
-                esc_html__( 'You are not allowed to view this report.', 'optimasi-onboarding' ),
+                esc_html__( 'You are not allowed to view this report.', 'content-audit-for-woocommerce' ),
                 '',
                 [ 'response' => 403 ]
             );
@@ -961,7 +965,7 @@ class Optimasi_Onboarding {
         $token = (string) get_option( self::OPTION_REPORT_TOKEN, '' );
         if ( $token === '' ) {
             wp_die(
-                esc_html__( 'No report is available yet — run the review first.', 'optimasi-onboarding' ),
+                esc_html__( 'No report is available yet — run the review first.', 'content-audit-for-woocommerce' ),
                 '',
                 [ 'response' => 404 ]
             );
@@ -976,7 +980,7 @@ class Optimasi_Onboarding {
 
         if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
             wp_die(
-                esc_html__( 'Your report could not be loaded right now.', 'optimasi-onboarding' ),
+                esc_html__( 'Your report could not be loaded right now.', 'content-audit-for-woocommerce' ),
                 '',
                 [ 'response' => 502 ]
             );
@@ -986,7 +990,7 @@ class Optimasi_Onboarding {
 
         if ( $html === '' ) {
             wp_die(
-                esc_html__( 'Your report could not be loaded right now.', 'optimasi-onboarding' ),
+                esc_html__( 'Your report could not be loaded right now.', 'content-audit-for-woocommerce' ),
                 '',
                 [ 'response' => 502 ]
             );
@@ -1020,7 +1024,7 @@ class Optimasi_Onboarding {
         // part of the UI has one to send.
         $token = (string) get_option( self::OPTION_REPORT_TOKEN, '' );
         if ( $token === '' ) {
-            self::send_error( __( 'No report is available yet — run the review first.', 'optimasi-onboarding' ), 404, 'no_report' );
+            self::send_error( __( 'No report is available yet — run the review first.', 'content-audit-for-woocommerce' ), 404, 'no_report' );
             return;
         }
         $template = sanitize_key( (string) ( $_POST['template'] ?? 'marketing' ) );
@@ -1032,14 +1036,14 @@ class Optimasi_Onboarding {
         $response = self::api_request( 'GET', $path, [], 25.0 );
 
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
         $html = (string) wp_remote_retrieve_body( $response );
         if ( $code !== 200 || $html === '' ) {
             self::send_error(
-                __( 'Your report could not be loaded right now.', 'optimasi-onboarding' ),
+                __( 'Your report could not be loaded right now.', 'content-audit-for-woocommerce' ),
                 ( $code >= 400 && $code < 500 ) ? 404 : 502,
                 'report_unavailable'
             );
@@ -1071,7 +1075,7 @@ class Optimasi_Onboarding {
             return true;
         }
         self::send_error(
-            __( 'Please tick the box to allow a short sample of your product descriptions to be sent to Optimasi for analysis.', 'optimasi-onboarding' ),
+            __( 'Please tick the box to allow a short sample of your product descriptions to be sent to Optimasi for analysis.', 'content-audit-for-woocommerce' ),
             422,
             'consent_required'
         );
@@ -1096,20 +1100,20 @@ class Optimasi_Onboarding {
         // The stored token is the only authority — see report_page().
         $token = (string) get_option( self::OPTION_REPORT_TOKEN, '' );
         if ( $token === '' ) {
-            self::send_error( __( 'Run the review first — there is no report to talk about yet.', 'optimasi-onboarding' ), 404, 'no_report' );
+            self::send_error( __( 'Run the review first — there is no report to talk about yet.', 'content-audit-for-woocommerce' ), 404, 'no_report' );
             return;
         }
 
         $channel = sanitize_key( (string) ( $_POST['channel'] ?? '' ) );
         if ( ! in_array( $channel, self::CONTACT_CHANNELS, true ) ) {
-            self::send_error( __( 'Choose how you’d like us to reach you.', 'optimasi-onboarding' ), 422, 'invalid_channel' );
+            self::send_error( __( 'Choose how you’d like us to reach you.', 'content-audit-for-woocommerce' ), 422, 'invalid_channel' );
             return;
         }
 
         $number = self::truncate_text( sanitize_text_field( wp_unslash( (string) ( $_POST['number'] ?? '' ) ) ), 40 );
         if ( in_array( $channel, self::CONTACT_NUMBER_CHANNELS, true )
             && strlen( (string) preg_replace( '/\D+/', '', $number ) ) < 6 ) {
-            self::send_error( __( 'Please add your number in international format, e.g. +61 4xx xxx xxx.', 'optimasi-onboarding' ), 422, 'number_required' );
+            self::send_error( __( 'Please add your number in international format, e.g. +61 4xx xxx xxx.', 'content-audit-for-woocommerce' ), 422, 'number_required' );
             return;
         }
 
@@ -1120,7 +1124,7 @@ class Optimasi_Onboarding {
 
         $email = sanitize_email( wp_unslash( (string) ( $_POST['email'] ?? '' ) ) );
         if ( $email !== '' && ! is_email( $email ) ) {
-            self::send_error( __( 'Please check the email address.', 'optimasi-onboarding' ), 422, 'invalid_email' );
+            self::send_error( __( 'Please check the email address.', 'content-audit-for-woocommerce' ), 422, 'invalid_email' );
             return;
         }
 
@@ -1133,13 +1137,13 @@ class Optimasi_Onboarding {
         ], 20.0 );
 
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
         $data = json_decode( (string) wp_remote_retrieve_body( $response ), true );
         if ( $code !== 200 || ! is_array( $data ) || empty( $data['ok'] ) ) {
-            $msg = self::api_message( $data, __( 'We could not record your request — please try again.', 'optimasi-onboarding' ) );
+            $msg = self::api_message( $data, __( 'We could not record your request — please try again.', 'content-audit-for-woocommerce' ) );
             self::send_error( $msg, ( $code >= 400 && $code < 500 ) ? $code : 502, 'contact_failed' );
             return;
         }
@@ -1159,7 +1163,7 @@ class Optimasi_Onboarding {
         ], 15.0 );
 
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
@@ -1167,7 +1171,7 @@ class Optimasi_Onboarding {
         if ( $code !== 200 || ! is_array( $data ) || empty( $data['ok'] ) ) {
             $msg = ( is_array( $data ) && ! empty( $data['message'] ) )
                 ? sanitize_text_field( (string) $data['message'] )
-                : __( 'Could not flush preview data.', 'optimasi-onboarding' );
+                : __( 'Could not flush preview data.', 'content-audit-for-woocommerce' );
             self::send_error( $msg, ( $code >= 400 && $code < 500 ) ? $code : 502, 'flush_failed' );
             return;
         }
@@ -1186,9 +1190,18 @@ class Optimasi_Onboarding {
      * @return array
      */
     private static function collect_measurements( bool $with_text = false, int $text_sample = 0 ): array {
+        // The catalogue is no longer bounded by a constant, so the bound that
+        // remains is wall-clock time. Without this a large catalogue exceeds the
+        // host's max_execution_time mid-loop and the admin sees the same "server
+        // communication failed" failure as any other unhandled fatal.
+        if ( function_exists( 'set_time_limit' ) ) {
+            @set_time_limit( 600 );
+        }
+
+        // `limit => -1` is WooCommerce's "no limit": every published product.
         $products = wc_get_products( [
             'status'  => 'publish',
-            'limit'   => self::SCAN_CAP,
+            'limit'   => -1,
             'orderby' => 'id',
             'order'   => 'ASC',
             'return'  => 'ids',
@@ -1555,7 +1568,7 @@ class Optimasi_Onboarding {
         $url = trim( (string) ( $_POST['url'] ?? '' ) );
         if ( $url === '' ) {
             delete_option( self::OPTION_API_URL );
-            wp_send_json_success( [ 'message' => __( 'Using the default Optimasi endpoint.', 'optimasi-onboarding' ), 'url' => '' ] );
+            wp_send_json_success( [ 'message' => __( 'Using the default Optimasi endpoint.', 'content-audit-for-woocommerce' ), 'url' => '' ] );
             return;
         }
         // https only, and nothing that can end an HTML attribute. Every request to
@@ -1565,12 +1578,12 @@ class Optimasi_Onboarding {
         // angle brackets are refused as well — escaping there is a second barrier,
         // not the one to rely on.
         if ( ! preg_match( '#^https://#i', $url ) || preg_match( '/[\s"\'<>\\\\`]/', $url ) ) {
-            self::send_error( __( 'Enter a full URL starting with https://', 'optimasi-onboarding' ), 400, 'invalid_url' );
+            self::send_error( __( 'Enter a full URL starting with https://', 'content-audit-for-woocommerce' ), 400, 'invalid_url' );
             return;
         }
         $url = esc_url_raw( rtrim( $url, '/' ) );
         update_option( self::OPTION_API_URL, $url );
-        wp_send_json_success( [ 'message' => __( 'Review service endpoint saved.', 'optimasi-onboarding' ), 'url' => $url ] );
+        wp_send_json_success( [ 'message' => __( 'Review service endpoint saved.', 'content-audit-for-woocommerce' ), 'url' => $url ] );
     }
 
     /**
@@ -1683,7 +1696,7 @@ class Optimasi_Onboarding {
         ], 20.0 );
 
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
@@ -1691,7 +1704,7 @@ class Optimasi_Onboarding {
         if ( $code !== 200 || ! is_array( $data ) || empty( $data['site_key'] ) ) {
             $msg = ( is_array( $data ) && ! empty( $data['message'] ) )
                 ? sanitize_text_field( (string) $data['message'] )
-                : __( 'Could not request an Optimasi key.', 'optimasi-onboarding' );
+                : __( 'Could not request an Optimasi key.', 'content-audit-for-woocommerce' );
             $err = ( is_array( $data ) && ! empty( $data['error'] ) )
                 ? sanitize_key( (string) $data['error'] )
                 : 'request_key_failed';
@@ -1709,7 +1722,7 @@ class Optimasi_Onboarding {
     private static function connect_store(): void {
         $site_key = sanitize_text_field( wp_unslash( (string) ( $_POST['site_key'] ?? '' ) ) );
         if ( $site_key === '' ) {
-            self::send_error( __( 'Please enter your Optimasi site key.', 'optimasi-onboarding' ), 422, 'missing_key' );
+            self::send_error( __( 'Please enter your Optimasi site key.', 'content-audit-for-woocommerce' ), 422, 'missing_key' );
             return;
         }
         $consent = [
@@ -1727,7 +1740,7 @@ class Optimasi_Onboarding {
         ], 15.0 );
 
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
@@ -1735,7 +1748,7 @@ class Optimasi_Onboarding {
         if ( $code !== 200 || ! is_array( $data ) || empty( $data['ok'] ) ) {
             $msg = ( is_array( $data ) && ! empty( $data['message'] ) )
                 ? sanitize_text_field( (string) $data['message'] )
-                : __( 'Connection was not approved.', 'optimasi-onboarding' );
+                : __( 'Connection was not approved.', 'content-audit-for-woocommerce' );
             $err = ( is_array( $data ) && ! empty( $data['error'] ) )
                 ? sanitize_key( (string) $data['error'] )
                 : 'connect_failed';
@@ -1839,18 +1852,18 @@ class Optimasi_Onboarding {
                 ? date_i18n( (string) get_option( 'date_format', 'j F Y' ), $at )
                 : '',
             /* translators: %s: the date the stored report was produced, e.g. "4 November 2026". */
-            'with_date'    => __( 'You have a report from your review on %s. Run steps 1 and 2 again for one that reflects your catalogue today.', 'optimasi-onboarding' ),
-            'without_date' => __( 'You have a report from an earlier review. Run steps 1 and 2 again for one that reflects your catalogue today.', 'optimasi-onboarding' ),
+            'with_date'    => __( 'You have a report from your review on %s. Run steps 1 and 2 again for one that reflects your catalogue today.', 'content-audit-for-woocommerce' ),
+            'without_date' => __( 'You have a report from an earlier review. Run steps 1 and 2 again for one that reflects your catalogue today.', 'content-audit-for-woocommerce' ),
         ];
     }
 
     private static function deep_init(): void {
         if ( self::get_connection_status() !== 'connected' ) {
-            self::send_error( __( 'Connect your store before running a deep audit.', 'optimasi-onboarding' ), 403, 'not_connected' );
+            self::send_error( __( 'Connect your store before running a deep audit.', 'content-audit-for-woocommerce' ), 403, 'not_connected' );
             return;
         }
         if ( ! function_exists( 'wc_get_products' ) || ! function_exists( 'wc_get_product' ) ) {
-            self::send_error( __( 'WooCommerce is not active.', 'optimasi-onboarding' ), 422, 'woocommerce_inactive' );
+            self::send_error( __( 'WooCommerce is not active.', 'content-audit-for-woocommerce' ), 422, 'woocommerce_inactive' );
             return;
         }
 
@@ -1889,7 +1902,7 @@ class Optimasi_Onboarding {
 
         $response = self::api_request( 'POST', '/api/v1/audit/deep', $body, 30.0 );
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
@@ -1897,7 +1910,7 @@ class Optimasi_Onboarding {
         if ( $code !== 202 || ! is_array( $data ) || empty( $data['job_id'] ) ) {
             $msg = ( is_array( $data ) && ! empty( $data['message'] ) )
                 ? sanitize_text_field( (string) $data['message'] )
-                : __( 'Deep audit could not be started.', 'optimasi-onboarding' );
+                : __( 'Deep audit could not be started.', 'content-audit-for-woocommerce' );
             $err = ( is_array( $data ) && ! empty( $data['error'] ) )
                 ? sanitize_key( (string) $data['error'] )
                 : 'deep_init_failed';
@@ -1913,23 +1926,23 @@ class Optimasi_Onboarding {
 
     private static function deep_poll(): void {
         if ( self::get_connection_status() !== 'connected' ) {
-            self::send_error( __( 'Connect your store first.', 'optimasi-onboarding' ), 403, 'not_connected' );
+            self::send_error( __( 'Connect your store first.', 'content-audit-for-woocommerce' ), 403, 'not_connected' );
             return;
         }
         $job_id = sanitize_text_field( wp_unslash( (string) ( $_POST['job_id'] ?? '' ) ) );
         if ( $job_id === '' ) {
-            self::send_error( __( 'Missing job id.', 'optimasi-onboarding' ), 422, 'missing_job' );
+            self::send_error( __( 'Missing job id.', 'content-audit-for-woocommerce' ), 422, 'missing_job' );
             return;
         }
         $response = self::api_request( 'GET', '/api/v1/audit/jobs/' . rawurlencode( $job_id ), [], 10.0 );
         if ( is_wp_error( $response ) ) {
-            self::send_error( __( 'Could not reach the Optimasi service.', 'optimasi-onboarding' ), 503, 'unreachable' );
+            self::send_error( __( 'Could not reach the Optimasi service.', 'content-audit-for-woocommerce' ), 503, 'unreachable' );
             return;
         }
         $code = (int) wp_remote_retrieve_response_code( $response );
         $data = json_decode( (string) wp_remote_retrieve_body( $response ), true );
         if ( $code !== 200 || ! is_array( $data ) ) {
-            self::send_error( __( 'Deep audit result unavailable.', 'optimasi-onboarding' ), 502, 'poll_failed' );
+            self::send_error( __( 'Deep audit result unavailable.', 'content-audit-for-woocommerce' ), 502, 'poll_failed' );
             return;
         }
         wp_send_json_success( $data );

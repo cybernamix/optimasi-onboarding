@@ -1,27 +1,31 @@
-=== Optimasi Content Audit ===
+=== Content Audit for WooCommerce ===
 Contributors: optimasi
 Tags: woocommerce, audit, seo, content, ecommerce
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Self-contained content audit plugin: runs a free 4-step audit across your
-WooCommerce catalog — scan, brand-voice analysis, your Sales-Ready Inspection
-Report, and a video showing how Optimasi works. Nothing is
-written to your site and no registration is required.
+Find out what your WooCommerce product pages are missing. A free, read-only
+content audit: scan every published product, measure brand voice and duplicate
+copy, and get a Sales-Ready report you can act on — plus the full executive
+report by email. Nothing is written to your store and no account is needed.
 
 == Description ==
 
-Optimasi Content Audit is a lightweight, self-contained review tool for new Optimasi
-clients. In four steps it shows how your product content measures up:
+Content Audit for WooCommerce measures what your product pages actually have, and
+reports what a shopper — or an AI answer engine — would find missing: thin
+descriptions, missing headings, no reviews, no brand story, duplicate copy.
 
-Step 1 — Scan your products. We measure up to the first 1,000 of your published
-products right on your site: description length, image count, review count,
-brand presence, and which content blocks (brand story, reviews, trust, FAQ,
-specs) each product carries. Nothing leaves your site in this step.
+It runs on your own site, needs no account, and writes nothing to your store. In
+four steps it shows how your product content measures up:
+
+Step 1 — Scan your products. We measure every published product right on your
+site: description length, image count, review count, brand presence, and which
+content blocks (brand story, reviews, trust, FAQ, specs) each product carries.
+Nothing leaves your site in this step.
 
 Step 2 — Analyse brand voice. We send a short sample of each description to
 Optimasi's servers, which report how consistent your tone and vocabulary are,
@@ -30,12 +34,17 @@ that repeats the main description).
 
 Step 3 — Your Sales-Ready report. Your four-page Sales-Ready Standard Inspection
 Report: key findings, the results by category, and a prioritised optimisation
-roadmap. It is generated on Optimasi's servers from the review already sent —
-read it on the page, print or save it as a PDF, or open it in a new tab. You can
-also have it emailed to you as a PDF from the card below it. The report is
-displayed inline in a sandboxed frame that cannot run scripts or submit forms,
-and it loads no remote images, fonts or stylesheets; the "Open in a new tab"
-button shows the same document on its own if you prefer.
+roadmap. It is generated on Optimasi's servers from the review already sent and
+read on the page. The report is displayed inline in a sandboxed frame that cannot
+run scripts or submit forms, and it loads no remote images, fonts or stylesheets;
+the "Open in a new tab" button shows the same document on its own if you prefer.
+
+Under it is the **Email the full report** card. The document that arrives by email
+is **not** the four-page report on the page: it is the executive report, 10–11
+pages — the whole-catalogue analysis, the evidence behind each finding, what each
+one costs you, the consultant's read and the complete roadmap. It is rendered from
+the same review, so the two cannot contradict each other, but they are two
+documents, not two copies of one.
 
 Step 4 — See How Optimasi Works. Watch a video explaining how Optimasi can help
 your WooCommerce store with Sales-ready pages optimised for AI search. The link
@@ -48,9 +57,9 @@ Teams call, WhatsApp, Viber, or email — and we will arrange it. This is entire
 optional: nothing is sent unless you submit that form yourself.
 
 The whole review is free and read-only: nothing is published to your store. At
-the end you get the new four-page Sales-Ready Standard Inspection Report, which
-you can print or save as a PDF — and you can optionally enter an email to have
-it sent to you (permission only — no spam).
+the end you get a four-page Sales-Ready Standard Inspection Report on the page,
+and — if you want it — the full 10–11 page executive report emailed to you as a
+PDF (permission only — no spam, and a confirmation link first).
 
 This plugin intentionally does NOT include the full Optimasi Content Manager
 feature set (brand profiles, trust content, FAQ, collections, tabs, beacon).
@@ -89,7 +98,7 @@ catalogue. This request is made only after you tick the consent checkbox on that
 step. Your consent is remembered, so you are asked once rather than on every run.
 
 Step 3 (your report) saves the finished review to Optimasi — the per-product
-metrics for up to the first 1,000 products (lengths, counts, and which content
+metrics for every published product (lengths, counts, and which content
 blocks each product carries), together with each product's title, its category
 name and your site URL — so that your report can be rendered and reopened later.
 No product description text is sent in this step. From then on the report is
@@ -98,8 +107,9 @@ data again.
 
 The "Email the full report" card sends the review snapshot, the email address you
 type and, when this review was already captured, its request reference — in order
-to email you the full report. You are sent a confirmation link first, and the
-download is only sent once you click it.
+to email you the executive report (a 10–11 page PDF, generated from that same
+snapshot). You are sent a confirmation link first, and the download is only sent
+once you click it.
 
 The "Request a one-on-one" form sends only what you entered: the contact channel
 you selected and, if you provided them, a phone number, an email address and your
@@ -126,7 +136,7 @@ Privacy policy: https://optimasi.io/privacy
 
 == Installation ==
 
-1. Upload the `optimasi-onboarding` folder to `/wp-content/plugins/`.
+1. Upload the `content-audit-for-woocommerce` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the Plugins screen.
 3. Open **Content Audit** in the admin menu and run the 4-step review.
 
@@ -138,8 +148,8 @@ Only what each step spells out. Step 1 (scan) runs entirely on your site. Step 2
 sends a short sample of each product description to Optimasi's servers to
 analyse brand voice — that is stated on the step, and it waits for the consent
 checkbox on it. Step 3 saves the finished review to Optimasi so the four-page
-report can be rendered and reopened later: the per-product metrics for up to the
-first 1,000 products (lengths, counts, and which content blocks each product
+report can be rendered and reopened later: the per-product metrics for every
+published product (lengths, counts, and which content blocks each product
 carries), together with each product's title, its category name and your site
 URL. No product description text is sent in that step. After that the report is
 fetched by reference, so no product data travels again. Step 4 (how Optimasi
@@ -169,78 +179,60 @@ description sample and any contact details we hold for your store.
 
 == Changelog ==
 
+= 1.0.2 =
+* The review covers the whole published catalogue. Step 1 stopped at the first 1,000 products, so
+  a larger store was measured as a 1,000-product store and the figure reported was the cap rather
+  than the catalogue. It now measures every published product. Nothing about that step left the
+  site before and nothing does now, so the only cost is the store's own execution time. The
+  per-product detail the report lists stays capped at 1,000 rows.
+
+* The email card sends the executive report, and says so. It was described as sending "it" — the
+  four-page report on the page. It sends the executive report, 10 to 11 pages, rendered from the
+  same review: the evidence behind each finding, what each one costs, the consultant's read and
+  the complete roadmap.
+
+* Step 3 no longer offers "Print / Save as PDF". There is no such control and cannot be: printing
+  from the report's sandboxed frame is refused and the frame has no layout to paginate. The PDF
+  comes from the email card.
+
+* Renamed to "Content Audit for WooCommerce", and it now installs into
+  `content-audit-for-woocommerce/`. WordPress identifies a plugin by its folder, so this version
+  does not replace 1.0.0 or 1.0.1 — deactivate and delete the old copy before installing.
+
+* Privacy text corrected. It said the review was capped at 1,000 products, which under-declared
+  what leaves the site. Every published product is measured, and the totals describe the
+  catalogue rather than a sample of it.
+
 = 1.0.1 =
-* **"Print / Save as PDF" is gone, because it never worked.** The report is displayed
-  in a sandboxed frame that cannot run script, and `window.print()` is refused there
-  without an error — so the button did nothing at all, and showed nothing to explain
-  it. The report prints normally from the browser's own Print menu, so the one action
-  is now **Open or print in a new tab**, which is the primary button. (The 1.0.0 notes
-  described the two buttons as showing the same document; that was wrong.)
+* Print / Save as PDF removed. `window.print()` is refused inside the report's sandboxed frame
+  and throws nothing catchable, so the control was dead. Use "Open or print in a new tab".
 
-* **A report from an earlier review is now offered with its date, instead of being
-  presented as if you had just finished.** On a later visit, a stored report made the
-  page render the whole document on load — findings included — with step 3 marked
-  *Ready*, while steps 1 and 2 had not run. The document was real; what it implied was
-  not. Step 3 now opens with *"You have a report from your review on <date>"* and a
-  **Show that report** button, its action buttons stay disabled, and nothing is
-  fetched until you ask for it.
+* A stored report no longer renders as a completed step on a later visit. It is offered behind
+  "You have a report from your review on <date>" and fetched only when asked for.
 
-* **The email offer now sits under the report, and describes what it actually sends.**
-  It was labelled as though it were another copy of the four-page summary already on
-  screen. What arrives by email is the **full** review: an executive summary you can
-  forward to whoever signs off on content, the consultant's read on what is working and
-  where the opportunity is, the brand-voice and duplicate-copy findings, and the
-  recommended plan, set out in full rather than summarised. The card now reads *Email
-  the full report*, and it says that a confirmation link arrives first.
+* Email card moved under the report and relabelled "Email the full report". It sends the full
+  review, not another copy of the four-page summary on screen, and it stays hidden when there is
+  no review from this visit to send.
 
-* **The email card stays hidden when there is no review to send.** The full report is
-  built from the review this visit sent, so a report restored from an earlier visit
-  shows the document — and can be printed from its tab — without offering an email that
-  would arrive empty. Run steps 1 and 2 again to have the full report emailed.
-
-* **Uninstalling now removes the plugin's data.** Deleting the plugin left every option
-  behind in the database, which is also why reinstalling it showed a report from a
-  previous install. Deletion now removes the seven settings this plugin owns, and only
-  those: the connection keys it shares with the Optimasi Content Manager are kept, so
-  removing this plugin cannot silently disconnect a store that is still connected
-  through the other one. Deactivating still keeps everything — only deletion clears it.
-  The plugin writes no files of its own.
+* uninstall.php added. Deleting the plugin now removes the seven options it owns and keeps the
+  connection options shared with the Optimasi Content Manager. Deactivation still keeps
+  everything.
 
 = 1.0.0 =
 * First public release.
 
-* **A free, four-step content review.** Scan up to the first 1,000 published
-  WooCommerce products, analyse brand voice across a description sample, read the
-  four-page Sales-Ready Standard Inspection Report, and watch a video explaining
-  how Optimasi works. Nothing is written to the store and no registration or
-  account is required.
+* A free, four-step content audit for a WooCommerce catalogue: scan up to 1,000 published
+  products, measure brand voice across a description sample, read the four-page Sales-Ready
+  Standard Inspection Report, and open the walkthrough. No account required.
 
-* **Step 1 runs entirely on your site.** Description length and headings, image
-  count, review count and rating, brand, categories, attributes, and which
-  content blocks each product carries. No request is made in this step.
+* Steps 1 and 4 send nothing. Step 2 sends a description sample and is refused server-side
+  without the consent box on that step (remembered, so it is asked once). Step 3 sends the
+  snapshot once; the report is then fetched by reference.
 
-* **Step 2 is the only step that sends product text**, and it is refused on the
-  server unless the consent checkbox on that step is ticked — not merely hidden in
-  the browser. The decision is remembered, so it is asked once rather than on
-  every run.
+* Read-only. No tables, no custom post types, no build step; stored state is the consent decision
+  and the last report's reference. Six files.
 
-* **Step 3 renders the report on Optimasi's servers** from the snapshot step 2
-  already sent, and displays it in a sandboxed frame that cannot run scripts or
-  submit forms. Print / Save as PDF and Open in a new tab show the same document,
-  and it can be emailed to you as a PDF.
-
-* **"How Optimasi can help"** offer panel, revealed with the report, with the same
-  five contact channels the emailed contact page uses.
-
-* **Works on a fresh install with no configuration.** The plugin ships pointing at
-  Optimasi's review service; the endpoint field is available for pointing a test
-  or agency site at a different instance.
-
-* **Read-only, and small.** Six files, no database tables, no custom post types,
-  no build step. Uninstalling removes the plugin's own settings and nothing else.
-
-  **Correction, added when 1.0.1 was cut: the sentence above was wrong when this
-  version shipped.** 1.0.0 had no uninstall routine at all, so deleting it left its
-  settings in the database; 1.0.1 adds one, and the claim is true from that version
-  onward. The correction is appended rather than edited into the original line, so
-  the record of what 1.0.0 said stays visible beside what was actually true.
+  Correction added when 1.0.1 was cut: the claim that uninstalling removes the plugin's own
+  settings was wrong when this shipped. 1.0.0 had no uninstall routine, so deleting it left its
+  options in the database, and that is only true from 1.0.1. Appended rather than edited into the
+  original line, so what 1.0.0 said and what was true both stay on the record.
