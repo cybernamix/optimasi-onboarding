@@ -1,15 +1,16 @@
 # Optimasi Content Audit
 
 A free, four-step **content review** for a WooCommerce catalogue. It measures what
-your product pages have, reports what is missing, and shows you the four-page
-report a prospective client keeps — without writing anything to your store and
-without an account.
+your product pages have, reports what is missing, and hands you two documents: a
+four-page Sales-Ready report on the report page, and the full executive report by
+email — without writing anything to your store and without an account.
 
 | Step | What happens | Where it runs |
 |---|---|---|
 | 1. Scan your products | measures up to 1,000 published products: description length and headings, images, reviews, brand, categories, attributes, and which content blocks each one carries | **your own site** — nothing leaves it |
 | 2. Analyse brand voice | sends a short sample of descriptions to measure tone/vocabulary consistency, AI-readiness and duplicate copy | Optimasi's servers — **only after you tick the consent box** |
 | 3. Your Sales-Ready report | the four-page Sales-Ready Standard Inspection Report: key findings, results by category, prioritised roadmap | Optimasi's servers |
+| **Email the full report** — the executive report | from the report page: confirm your email address and receive the **10–11 page executive report** as a PDF — the full analysis behind the review, the evidence for each finding, what it costs you, the consultant's read and the complete roadmap. A longer document than the four-page report above, not a variant of it | Optimasi's servers — the address you enter, and nothing else |
 | 4. See How Optimasi Works | opens a video page in a new tab | nothing is sent |
 
 **Nothing is written to your store.** No tables, no options on your storefront, no
